@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>  <title>Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+    <script>
+        let selectedUser = "";
+
+        function loadMessages() {
+            if (!selectedUser) return; // No user selected
+
+            fetch(`/get_messages/${selectedUser}`)
+                .then(response => response.json())
+                .then(data => {
+                    let chatBox = document.getElementById("chat-box");
+                    chatBox.innerHTML = ""; // Clear previous messages
+
+                    data.forEach(msg => {
+                        chatBox.innerHTML += `<p><strong>${msg.Sender}:</strong> ${msg.Message}</p>`;
+                    });
+
+                    // Auto-scroll to bottom
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                })
+                .catch(error => console.error("Error fetching messages:", error));
+        }
+
+        function sendMessage() {
+            let message = document.getElementById("message").value.trim();
+            if (!selectedUser || message === "") return;
+
+            fetch("/send_message", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ "recipient": selectedUser, "message": message })
+            }).then(() => {
+                document.getElementById("message").value = ""; // Clear input
+                setTimeout(loadMessages, 500); // Refresh messages
+            });
+        }
+
+        function selectUser(user) {
+            selectedUser = user;
+            document.getElementById("user-search").value = user; // Set the input value
+            document.getElementById("user-list").innerHTML = ""; // Clear suggestions
+            loadMessages();
+        }
+
+        function searchUsers() {
+    let query = document.getElementById("user-search").value.trim().toLowerCase();
+    let userList = document.getElementById("user-list");
+    userList.innerHTML = ""; // Clear previous suggestions
+
+    if (query.length < 1) return; // Don't search on empty input
+
+    fetch(`/search_users?q=${query}`)
+        .then(response => response.json())
+        .then(users => {
+            console.log("Filtered Users:", users); // Debugging
+
+            userList.innerHTML = ""; // Ensure list refreshes
+
+            if (users.length === 0) {
+                userList.innerHTML = "<div>No users found</div>";
+                return;
+            }
+
+            users.forEach(user => {
+                let div = document.createElement("div");
+                div.classList.add("user-suggestion");
+                div.innerText = user;
+                div.onclick = function () {
+                    selectUser(user);
+                    document.getElementById("user-list").innerHTML = ""; // Hide suggestions
+                };
+                userList.appendChild(div);
+            });
+        })
+        .catch(error => console.error("Error fetching users:", error));
+}
+
+
+        document.addEventListener("DOMContentLoaded", function() {
+            document.getElementById("message").addEventListener("keypress", function(event) {
+                if (event.key === "Enter") {
+                    event.preventDefault();
+                    sendMessage();
+                }
+            });
+        });
+
+        setInterval(loadMessages, 1000);
+    </script>
+</head>
+<body>
+    <h2>Welcome, {{ username }}</h2>
+    <a href="{{ url_for('logout') }}">Logout</a>
+    <br><br>
+
+    <label>Search User:</label>
+    <input type="text" id="user-search" placeholder="Type a username..." onkeyup="searchUsers()">
+    <div id="user-list"></div>
+
+    <br><br>
+
+    <div id="chat-box"></div>
+
+    <textarea id="message" placeholder="Type a message"></textarea>
+    <button onclick="sendMessage()">Send</button>
+</body>
+</html>

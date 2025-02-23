@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EclipseChat - Temporary Chats</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='homepage.css') }}">
+</head>
+<body>
+
+    <header>
+        <div class="logo">
+            <h1>EclipseChat</h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('signup') }}">Sign Up</a></li>
+                <li><a href="{{ url_for('login') }}">Log In</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section class="main">
+        <h2>Temporary Chats. Permanent Connections.</h2>
+        <p>Chats that disappear after 2 minutes. Connect, chat, and keep your conversations private.</p>
+        <a href="{{ url_for('signup') }}" class="cta-button">Start Chatting Now</a>
+    </section>
+
+    <section class="features">
+        <h3>Key Features</h3>
+        <ul>
+            <li>✅ Auto-Delete Chats: Messages disappear after 2 minutes.</li>
+            <li>✅ Real-Time Communication: Instant chat for quick connections.</li>
+            <li>✅ No Permanent Data: Your chats are secure and deleted after 2 minutes.</li>
+        </ul>
+    </section>
+    <footer>
+        <ul>
+           
+            <li><a href="{{ url_for('terms') }}">Terms of Service</a></li>
+        </ul>
+    </footer>
+    
+</body>
+</html>
